@@ -1,0 +1,98 @@
+Cross-compiling Qt applications using Yocto Project standard SDK¶
+
+
+Introduction¶
+A quite common need when building an Embedded Linux system is developing and cross-compiling a Qt based application. While the tools for the developers to prepare such a setup do most of the hard work, some manual configuration steps are still required.
+
+Here we'll provide a quick overview of how to include full Qt cross-compiling support in a Yocto Project standard SDK built from sources, and how to use it inside Qt Creator running on a Linux host.
+
+Including Qt cross-compiling support in Yocto Project standard SDK¶
+Here we assume an image of some Yocto Project distribution (e.g. poky or Ångström) for the embedded board in use and is already built and working successfully.
+
+Yocto Project provides the ability to build a "standard SDK" associated to a given image in order to enable host computers to cross-compile, deploy and debug applications to the target embedded board. The standard SDK can be integrated in IDEs to provide the developer an easy and convenient way to develop on the host computer application for the target board.
+
+Before building the actual standard SDK, we include the following code in the image recipe, so that the resulting SDK will include the required development tools for cross-compiling a Qt application (qmake, etc):
+
+inherit populate_sdk_qt5
+
+Once that is done, we build the standard SDK with the command:
+
+bitbake -c populate_sdk <image-name>
+
+We now obtain an installable SDK in build/tmp/deploy/sdk/<image-name>-<host-arch>-<distro-version>-toolchain.sh
+
+Refer to the "Building an SDK Installer" section of the official Yocto Project documentation for more details about building a Yocto Project SDK.
+
+Installing the SDK¶
+With the installer for the standard SDK ready we proceed with installation from the command line as root user:
+
+./<image-name>-<host-arch>-<distro-version>-toolchain.sh
+
+The installer will only ask for the destination path, install under /usr/local or /opt if the SDK is meant to be used by multiple users in the host computer.
+
+Configuring Qt Creator for cross-compilation¶
+We assume Qt Creator IDE is already installed in the Linux host computer and we now set it up to cross-compile a Qt application for the target board.
+
+Details about the procedure are diligently documented in the "Configuring Qt Creator for Yocto Development" blog post by Jeff Tranter of ICS. We here just go straight to the point of configuring the SDK in Qt Creator, but the article provides additional details.
+
+Ångström distribution for ARM 32-bit target¶
+The following is an example on how to setup a Yocto Project standard SDK built using Ångström distribution for a Linux x86_64 host in Qt Creator 4.5:
+
+open the "Tools", "Options..." menu and select the Build & Run section
+use <sdk-install-path>/sysroots/x86_64-angstromsdk-linux/usr/bin/qt5/qmake as qmake location in Qt versions tab
+use <sdk-install-path>/sysroots/x86_64-angstromsdk-linux/usr/bin/arm-angstrom-linux-gnueabi/arm-angstrom-linux-gnueabi-gcc as C compiler path and select ABI arm-linux-generic-elf-32bit in the Compilers tab
+use <sdk-install-path>/sysroots/x86_64-angstromsdk-linux/usr/bin/arm-angstrom-linux-gnueabi/arm-angstrom-linux-gnueabi-g++ as C++ compiler path and select ABI arm-linux-generic-elf-32bit in the Compilers tab
+use <sdk-install-path>/sysroots/x86_64-angstromsdk-linux/usr/bin/arm-angstrom-linux-gnueabi/arm-angstrom-linux-gnueabi-gdb as debugger path in Debuggers tab
+(only needed if CMake is used) use <sdk-install-path>/sysroots/x86_64-angstromsdk-linux/usr/bin/cmake as cmake path in CMake tab
+open the Devices section
+in the Devices tab create a new device of type "Generic Linux Device", specify IP address and authentication details
+return to the Build & Run section
+create a new kit with name "Cross-compile ARM 32bit" selecting the configurations we just created use <sdk-install-path>/sysroots/cortexa15hf-neon-angstrom-linux-gnueabi as sysroot path
+press Apply and exit Qt Creator
+open a terminal application and source the cross compiling environment setup with . /<sdk-install-path>/environment-setup-<target-arch>-angstrom-linux-gnueabi
+start Qt Creator from the current command line (e.g. $HOME/Qt/Tools/QtCreator/bin/qtcreator)
+create a new example project using the "Qt Widgets Application" template
+name the project "hello-qt"
+select the "Cross-compile ARM 32bit" kit we just created and finish
+edit the hello-qt.pro adding:
+
+# install
+target.path=/home/root/
+INSTALLS += target
+18. build the project
+19. run
+20. the hello-qt application should now start on the target embedded Linux device. Success!
+
+Poky distribution for x86 64-bit target¶
+The following is an example on how to setup a Yocto Project standard SDK built using Poky distribution for a Linux x86_64 host in Qt Creator 4.9:
+
+open the "Tools", "Options..." menu and select the Build & Run section
+use <sdk-install-path>/sysroots/x86_64-pokysdk-linux/usr/bin/qmake as qmake location in Qt versions tab
+use <sdk-install-path>/sysroots/x86_64-pokysdk-linux/usr/bin/x86_64-poky-linux/x86_64-poky-linux-gcc as C compiler path and select ABI x86-linux-generic-elf-64bit in the Compilers tab
+use <sdk-install-path>/sysroots/x86_64-pokysdk-linux/usr/bin/x86_64-poky-linux/x86_64-poky-linux-g++ as C++ compiler path and select ABI x86-linux-generic-elf-64bit in the Compilers tab
+use <sdk-install-path>/sysroots/x86_64-pokysdk-linux/usr/bin/x86_64-poky-linux/x86_64-poky-linux-gdb as debugger path in Debuggers tab
+(only needed if CMake is used) use <sdk-install-path>/sysroots/x86_64-pokysdk-linux/usr/bin/cmake as cmake path in CMake tab
+open the Devices section
+in the Devices tab create a new device of type "Generic Linux Device", specify IP address and authentication details
+return to the Build & Run section
+create a new kit with name "Cross-compile x86 64bit" selecting the configurations we just created use <sdk-install-path>/sysroots/corei7-64-poky-linux as sysroot path
+press Apply and exit Qt Creator
+open a terminal application and source the cross compiling environment setup with . /<sdk-install-path>/environment-setup-<target-arch>-poky-linux
+start Qt Creator from the current command line (e.g. $HOME/Qt/Tools/QtCreator/bin/qtcreator)
+create a new example project using the "Qt Widgets Application" template
+name the project "hello-qt"
+select the "Cross-compile x86 64bit" kit we just created and finish
+edit the hello-qt.pro adding:
+
+# install
+target.path=/home/root/
+INSTALLS += target
+18. build the project
+19. run
+20. the hello-qt application should now start on the target embedded Linux device. Success!
+
+As we have shown in the examples above the procedure is not difficult but, as we just showed, requires care while setting up some configuration details.
+
+source link:https://technotes.kynetics.com/2018/Yocto-SDK-Qt/
+
+
