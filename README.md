@@ -4,7 +4,6 @@
 (for example in my projecct address is "/home/imangh/yocto/poky/meta-licheepizero/recipes-images/images")
 
 [2] : build the standard SDK with the command: " bitbake -c populate_sdk <image-name> "
-
 We now obtain an installable SDK in build/tmp/deploy/sdk/<image-name>-<host-arch>-<distro-version>-toolchain.sh     
 (for example for my project its located in " /home/imangh/yocto/tmp/deploy/sdk ")
 
