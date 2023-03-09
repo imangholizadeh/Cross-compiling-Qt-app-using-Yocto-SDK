@@ -1,0 +1,1 @@
+# Cross-compiling-Qt-app-using-Yocto-SDK
