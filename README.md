@@ -13,7 +13,7 @@ We now obtain an installable SDK in build/tmp/deploy/sdk/<image-name>-<host-arch
 [4]:Configuring Qt Creator for cross-compilation
  (see detals in manual file)
 
-for run Qt
+for run Qt5.10.1
   cd /opt/poky/3.1.23$ 
 (source this file)  :  source environment-setup-armv7vet2hf-neon-poky-linux-gnueabi 
 cd /home/imangh/Qt5.10.1/Tools/QtCreator/bin
