@@ -11,5 +11,6 @@ We now obtain an installable SDK in build/tmp/deploy/sdk/<image-name>-<host-arch
 (for example for my project its " ./poky-glibc-x86_64-qt5-image-armv7vet2hf-neon-licheepizero-dock-toolchain-3.1.23.sh  ")
 
 [4]:Configuring Qt Creator for cross-compilation
+ (see detals in manual file)
 
 source link:https://technotes.kynetics.com/2018/Yocto-SDK-Qt/
